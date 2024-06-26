@@ -1,0 +1,156 @@
+---
+title: "Transfromers for Statisticians: Tabulating Matrices and Operations for Statisticians"
+author: "Coleman Breen"
+date: "June 17, 2024"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## What's the point of this post?
+
+The world does not need any more tutorials on the transformer model. To me, the most challenging part of the "Attention is All You Need" paper is keeping track of the matrix dimensions, operations comprising the algorithm, and assumptions. The overall structure of the model is explained by [Sebastian Rashcka](https://sebastianraschka.com/blog/2023/self-attention-from-scratch.html). Another useful resource is the [Annotated Transformer](https://nlp.seas.harvard.edu/annotated-transformer/). In this post, I want to do something simple but useful. I want to keep track of the matrix dimensions, operations, and function dependencies. Lots of tutorials make effective use of code. But if you don't code in Jax, PyTorch, or TensorFlow regularly, the code-focused tutorials may not be all that helpful.
+
+## Digression on how computational scientistis approach problems
+
+My experience is that people coming from software engineering and computer science identify problems and then compose algorithms to solve those problems. There is usually little consideration given to what assumptions underlie the algorithm. 
+
+The algorithm-focused approach is the one taken by most software engineers and computer scientists. Identify a problem and then compose and algorithm to solve the problem. There seem to be two dimensions on which algorithmists optimize: is cost in terms of compute (if resource constrained you care about wall clock time). The second is benchmark performance. How well does your algorithm perform against public (or internal) benchmarks. Does it sort an array faster? Most of the time, algorithmists are dealing with deterministic systems. When they occasionally are not, the stochasticity is something to be optimized out, not understood.
+
+-   Not worried about hyper-parameters. Whatever produces good model performance.
+-   Not worried about loss functions "making sense" as long as the metrics are optimized.
+-   Not worried about model size. Make the model as large as will fit on the device.
+
+There are many healthy things about this worldview. For one, it allows useful products to be built.
+
+The model-focused approach is focused (perhaps too much) on assumptions. What is the structure of the system? Can we assume linearity of the features? What sort of error do we expect? How much variability is explained. Goal is understanding...
+
+
+# High-Level View
+
+*TLDR: a Transformer is s a model having three structurally similar components that make use of self-attention spread across multiple heads.*
+
+The Transformer model has three modules: encoder, decoder, and encoder-decoder. As I understand it, a "Transformer" *must have* all three of these components. They are structurally similar in that each of the three components (i) uses scaled dot-product attention (ii) spread across multiple heads and (iii) shares post-processing operations (e.g. residual connection, layer normalization, and feed-forward neural network). Then these three modules are carefully brought together, you get a Transformer. 
+
+For example, in the German to English translation task, an English sentence of length $L$ is provided. The sentence has already been tokenized so each token is represented in a high-dimensional feature space. The authors assume that each embedded tokens is in $\mathbb{R}^{d_{\rm{model}}}$. 
+
+Broadly speaking, the encoder produces a representation of the English sentence. The decoder takes the *German* (output) one token at a time. The first token is a "start".
+
+
+The inputs to the encoder are $X$, the English sentences. Likewise, the inputs to the decoder are $Y$, the corresponding German translations. 
+
+The inputs and outputs for all three are some combination of the data matrix $X$, a perturbed version of $X$, and/or a latent representation of $X$. More specifically, we have the following functionals. I use the "rawest" possible input that still captures the 
+
+## Functional Representation
+
+Let's consider what the inputs and outputs really are.
+
+1. **Encoder:** $f: X \rightarrow Z$. Encode $X$ and call the code $Z$. Conveniently, $X$ and $Z$ have the same dimensions. This module uses self-attention since the queries, keys, and values are all computed from $X$. 
+
+2. **Decoder:** $g_j : Y = M_j Y \rightarrow X^{'}_j$. Let $X_j^{'}$ be a masked version of $X$ where all tokens above index $j$ are set to zero. We can accomplish this masking by using a square utility matrix of dimension $L$. $M_j$ is an identity matrix up to and including the $j$th diagonal. All other entries are zero. The use of $M_j X$ prevents the decoder from "looking ahead" and parsing the tokens in the order they're written. This function decodes the constrained version of $X$ and produces another matrix that is conveniently the same dimension as $X$.
+
+3. **Encoder-decoder:** $h: Z, X' \rightarrow y$ where $Y$ is the final output matrix. Depending on the task.
+
+
+| Module | Query | Key | Value |
+| ------ | ----- | --- | ----- |
+| Encoder | From $X$ | From $X$ | From $X$ |
+| Decoder | From *masked* $X$ | From $X$ | From $X$ |
+| Encoder-Decoder | Output of *decoder* | Output of *encoder* | Output of *encoder* | 
+
+Each training example (ignore masking for now) consists of a matrix $X \in \mathbb{R}^{L \times d_{model}}$. Here, $L$ represents the sequence length and $d_model$ is the *chosen* hyper parameter corresponding to the second dimension of the weight matrices $W_Q$, $W_K$, and $W_V$. $d_{model}$ also determines the dimension of the feed-forward network.
+
+For a single pass through the model, the only data we really have is a matrix $X$. Since we the goal is auto-encoding, $X$ serves as the input and output, albeit with some operations applied beforehand. There is another matrix $Z$ which represents the encoding. There is another matrix $X^{(i)}$ where all tokens greater than $i$ are masked. Since rows correspond to tokens and columns to embedding dimensions, this means that $X^{(i)}$ has real data in the first $i$ rows and 
+
+We could defined the masking matrix as $M^{(j)} \in \mathbb{R}^{L \times L}$ where $M^{(j)}$ is a sparse matrix with ones on the diagonal from index 1 up to and including index $j$. Then we can generate masked copies of $X$ on the fly as $X^{(j)} = M_j X$
+
+
+
+**Forward operations**
+
+1. Scaled dot-product attention
+  - $W_Q$: weights for query matrix
+  - $W_K$: weights for key matrix
+  - $W_V$: weights for value matrix
+2. Feed-forward network
+  - $\Omega$: weights for fully-connected layer
+  - $\beta$: biases for fully-connected layer
+  - $\sigma$: activation function such as ReLU
+3. Masking
+  - No learned parameters
+
+**Bookkeeping operations**
+
+The following are used to help with numerical stability, covariate shift, etc. They are important to use in practice, but can obscure the 
+
+1. Scaling by constant (here it's always $d_{model}$)
+2. Softmax function
+3. Layer normalization
+4. Concatenation
+ 
+**High-level view of the transformer model**
+
+
+# Self-Attention in the Encoder
+
+In the vanilla setting, we have just one head. In the scaled dot-product attention, we do a total of five matrix multiplications **just for the self-attention mechanism.** First, the argument to the soft max function--often called the score--is computed as $S = X W_Q W_K^TX^T$. We apply scaling by a factor of $d_{model}$. If you wanted to maximize your matrix representations, you could use $D = \frac{1}{d_{model}}\mathbb{I}_{L\times L}$ and then take $A = (X W_Q W_K^TX)D$. Now, we apply softmax to each column. So if you wanted to sum up all of the values in $\rm{softmax}(A)$, then we could use
+
+Of course, the order of the matrix operations does not technically need to be done in the way described. You could multiply
+
+
+| Object  | Inputs | Dimension |  Notes | 
+|---------|--------|-----------|--------|
+| $X$     | n/a      | $L \times d_{model}$ | Data already embedded | 
+| $W_Q$   | n/a      | $d_{model}\times d_{model}$ | Square matrix  |  
+| $W_K$   | n/a      | $d_{model}\times d_{model}$ | Square matrix  | 
+| $W_V$   | n/a      | $d_{model}\times d_{model}$ | Square matrix  |        
+| $W$     | $X W_Q$  | $L \times d_{model}$  | . |
+| $K^T$   | $(X W_K)^T$ | $d_{model} \times L$ | . |
+| $V$     | $X W_V$  | $L \times d_{model}$ | . |
+| $S$     | $\frac{X W_QW_K^TX^T}{d_{model}} = \frac{QK^T}{d_{model}}$ | $L \times L$ | Score matrix |      
+| $\rm{Attention}(Q,K,V)$ | $\rm{softmax}(S)$ | $L\times L$ | Attention matrix with same dimensions as $X$ |                      
+
+Critically, the output of $\rm{Attention}(Q,K,V)$ is the same dimension as the input matrix $X$. This makes it so that the residual connection and layer normalization are easy to compute. No matrix trimming or reshaping is necessary.
+
+-   If we let $i$ index the rows and $j$ index the columns of $S$, then $S_{i,j}$ represents how important the $j$th word is to understanding word $i$. Note that this matrix need not be (and almost surely is not) symmetric.
+-   Scaling by $d_{model}$ is a numerical aid.
+-   Applying softmax means that each row forms a valid probability distribution. For a given row $i$, each value $S_{i,j}$ has a nice meaning.
+-   Can we say that $S_{1,2} = 0.1$ means the there's a 10% probability that the second word is important to "understanding" the first word?
+
+## Odds and Ends
+
+The authors also frequently employ a layer normalization. 
+
+For completeness, here is one overly expressed forward pass. I will do something heretical and write this in R.
+
+```{r, eval=FALSE}
+
+# Three matrix multiplications done inside 
+# the function argument to softmax give us
+# the scores
+S <- X %*% Wq %*% t(Wk) %*% t(X)
+
+# Recall that R is 1-indexed. We apply
+# softmax to each row so we can interpret as
+# "for word i, how much does word j help understanding"
+S_normed <- apply(S / d_model, FUN=softmax, MARGIN=1)
+
+# Multiply the normalized scores by the value 
+# matrix to get the full attention pass
+A <- S_normed %*% X %*% V
+
+# Perform residual correction + layer normalization
+A_normed <- apply(S_normed + X, FUN=layernorm, MARGIN=1)
+
+# For encoding
+E <- A_normed %*% Omega + b
+E_normed <- apply(E + X, FUN = layernorm)
+
+```
+
+# Multi-Head Attention
+
+In the Transformer architecture, the authors use Multi-Head Attention. In essence, the computational load of learning $W_Q$, $W_K$, and $W_V$ is spread out to $h$ number of heads, each running its own self-attention scheme. In other words, each head gets its own query, key, and value matrices. And critically, each of these learned parameter matrices is
