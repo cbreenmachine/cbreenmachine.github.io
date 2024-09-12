@@ -13,7 +13,7 @@
 
 <meta name="date" content="2024-06-17" />
 
-<title>Transfromers for Statisticians: Tabulating Matrices and Operations for Statisticians</title>
+<title>Transfromers for Statisticians</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -350,33 +350,77 @@ display: none;
 
 
 
-<h1 class="title toc-ignore">Transfromers for Statisticians: Tabulating
-Matrices and Operations for Statisticians</h1>
+<h1 class="title toc-ignore">Transfromers for Statisticians</h1>
 <h4 class="author">Coleman Breen</h4>
 <h4 class="date">June 17, 2024</h4>
 
 </div>
 
 
-<div id="whats-the-point-of-this-post" class="section level2">
-<h2>What’s the point of this post?</h2>
+<div id="transformers-are-not-models" class="section level1">
+<h1>Transformers are not models</h1>
+<div id="what-makes-a-model" class="section level2">
+<h2>What makes a model?</h2>
+<p>In statistics, you learn that a model <em>is</em> a set of
+assumptions. When building a linear regression model, we are taught to
+assume (i) that covariates are linear, (ii) residuals are Normally
+distributed, (iii) and that these residuals are independent. This is a
+remarkably compact set of assumptions. It breaks down a modeling a
+problem into three relationships. Linear covariates is an assumption
+about how the features are related <em>to each other</em> and how they
+are composed to produce a reasonable output. The Normality assumption is
+an expression of the modeler’s understanding of the world and that of
+randomness. Independence is a statement about how observations are
+related to each other.</p>
+<table>
+<thead>
+<tr class="header">
+<th>Assumption</th>
+<th>Relationship</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Linearity</td>
+<td>Between features and response</td>
+</tr>
+<tr class="even">
+<td>Normality</td>
+<td>Between systemic and random</td>
+</tr>
+<tr class="odd">
+<td>Independence</td>
+<td>Between observations</td>
+</tr>
+</tbody>
+</table>
+<p>It is easy to imagine expounding these assumptions. Let the
+relationship between features be non-linear, or linear in most but not
+all cases, etc.</p>
+</div>
+</div>
+<div id="the-transformer-is-not-a-model" class="section level1">
+<h1>The Transformer is Not a Model</h1>
+<p>The Transformer Model may be better thought of as an algorithm than a
+model. There are assumptions baked in, but the assumptions are never
+really made explicit, and never checked.</p>
 <p>The world does not need any more tutorials on the transformer model.
 To me, the most challenging part of the “Attention is All You Need”
-paper is keeping track of the matrix dimensions and operations. The
-overall structure of the model is explained by <a href="https://sebastianraschka.com/blog/2023/self-attention-from-scratch.html">Sebastian
+paper is keeping track of the matrix dimensions, operations comprising
+the algorithm, and assumptions. The overall structure of the model is
+explained by <a href="https://sebastianraschka.com/blog/2023/self-attention-from-scratch.html">Sebastian
 Rashcka</a>. Another useful resource is the <a href="https://nlp.seas.harvard.edu/annotated-transformer/">Annotated
 Transformer</a>. In this post, I want to do something simple but useful.
-I want to keep track of the matrix dimensions, operations, and
+I want to keep track of the matrix dimensions, operations, and function
 dependencies. Lots of tutorials make effective use of code. But if you
 don’t code in Jax, PyTorch, or TensorFlow regularly, the code-focused
 tutorials may not be all that helpful.</p>
-</div>
 <div id="digression-on-how-computational-scientistis-approach-problems" class="section level2">
 <h2>Digression on how computational scientistis approach problems</h2>
 <p>My experience is that people coming from software engineering and
 computer science identify problems and then compose algorithms to solve
-those problems. There is usually no consideration for what assumptions
-underly the algorithm.</p>
+those problems. There is usually little consideration given to what
+assumptions underlie the algorithm.</p>
 <p>The algorithm-focused approach is the one taken by most software
 engineers and computer scientists. Identify a problem and then compose
 and algorithm to solve the problem. There seem to be two dimensions on
@@ -402,14 +446,28 @@ assumptions. What is the structure of the system? Can we assume
 linearity of the features? What sort of error do we expect? How much
 variability is explained. Goal is understanding…</p>
 </div>
+</div>
 <div id="high-level-view" class="section level1">
 <h1>High-Level View</h1>
-<p>Our task is translating from English to German. The Transformer has
-three modules: encoder, decoder, and encoder-decoder. Broadly speaking,
-the encoder produces a representation of the English sentence. The
-decoder takes the <em>German</em> (output) one token at a time. The
-first token is a “start”.</p>
-<p>How does the token at a time thing work?</p>
+<p><em>TLDR: a Transformer is s a model having three structurally
+similar components that make use of self-attention spread across
+multiple heads.</em></p>
+<p>The Transformer model has three modules: encoder, decoder, and
+encoder-decoder. As I understand it, a “Transformer” <em>must have</em>
+all three of these components. They are structurally similar in that
+each of the three components (i) uses scaled dot-product attention (ii)
+spread across multiple heads and (iii) shares (internal) post-processing
+operations (e.g. residual connection, layer normalization, and
+feed-forward neural network). Then these three modules are carefully
+brought together, you get a Transformer.</p>
+<p>For example, in the German to English translation task, an English
+sentence of length <span class="math inline">\(L\)</span> is provided.
+The sentence has already been tokenized so each token is represented in
+a high-dimensional feature space. The authors assume that each embedded
+tokens is in <span class="math inline">\(\mathbb{R}^{d_{\rm{model}}}\)</span>.</p>
+<p>Broadly speaking, the encoder produces a representation of the
+English sentence. The decoder takes the <em>German</em> (output) one
+token at a time. The first token is a “start”.</p>
 <p>The inputs to the encoder are <span class="math inline">\(X\)</span>,
 the English sentences. Likewise, the inputs to the decoder are <span class="math inline">\(Y\)</span>, the corresponding German
 translations.</p>
@@ -419,6 +477,9 @@ matrix <span class="math inline">\(X\)</span>, a perturbed version of
 of <span class="math inline">\(X\)</span>. More specifically, we have
 the following functionals. I use the “rawest” possible input that still
 captures the</p>
+<div id="functional-representation" class="section level2">
+<h2>Functional Representation</h2>
+<p>Let’s consider what the inputs and outputs really are.</p>
 <ol style="list-style-type: decimal">
 <li><p><strong>Encoder:</strong> <span class="math inline">\(f: X
 \rightarrow Z\)</span>. Encode <span class="math inline">\(X\)</span>
@@ -534,6 +595,7 @@ the</p>
 <li>Concatenation</li>
 </ol>
 <p><strong>High-level view of the transformer model</strong></p>
+</div>
 </div>
 <div id="self-attention-in-the-encoder" class="section level1">
 <h1>Self-Attention in the Encoder</h1>

@@ -1,0 +1,39 @@
+---
+title: "When thinking from first principles leads to ruin"
+author: "Coleman Breen"
+format: html
+editor: visual
+---
+
+Definition of precautionary principle. Non-naive PP. States of ruin.
+
+Biologists and chemists like to think from first principles
+
+Less about epistemology than it is about
+
+Do this in Jupyter notebook.
+
+# What we don't know
+
+Single-stranded DNA. Let's say that If there are five AAATTT "motifs" in a row then it's game over. This virus will have an R0 of ten and we're all fucked.
+
+But there is virtually no way that this can occur naturally. Let's say the fitness function *likes* repetitive elements, but really does not like AATT motifs. Likes having three AAATTT motifs, but no more and no less.
+
+Fitness function is number of AAA TTT
+
+## Running Code
+
+When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+
+```{r}
+1 + 1
+```
+
+You can add options to executable code like this
+
+```{r}
+#| echo: false
+2 * 2
+```
+
+The `echo: false` option disables the printing of code (only output is displayed).

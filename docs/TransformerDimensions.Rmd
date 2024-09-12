@@ -1,5 +1,5 @@
 ---
-title: "Transfromers for Statisticians: Tabulating Matrices and Operations for Statisticians"
+title: "Transfromers for Statisticians"
 author: "Coleman Breen"
 date: "June 17, 2024"
 output: html_document
@@ -9,8 +9,30 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+# Transformers are not models
 
-## What's the point of this post?
+A model is a set of assumptions. In the purest form, these assumptions tell you about at least four relationships. First, what is the connection between observations? Are they independent? Do they vary with time? Are the odd-numbered observations correlated? Second, a model specifies relationship(s) among features (covariates). Are they linked to each other some how? Does the second feature give you useful information that the first does not? The third relationship is between the outputs and the covariates. This is the connection given the most attention in data science curricula. The final relationship we need to specify for a model is a notion of uncertainty. Many physics models implicitly disregard any hint of uncertainty.
+
+Hooke's la
+
+## What makes a model?
+
+In statistics, you learn that a model *is* a set of assumptions. When building a linear regression model, we are taught to assume (i) that covariates are linear, (ii)  residuals are Normally distributed, (iii) and that these residuals are independent. This is a remarkably compact set of assumptions. It breaks down a modeling a problem into three relationships. Linear covariates is an assumption about how the features are related *to each other* and how they are composed to produce a reasonable output. The Normality assumption is an expression of the modeler's understanding of the world and that of randomness. Independence is a statement about how observations are related to each other. 
+
+| Assumption | Relationship |
+| ---------- | ------------ |
+| Linearity  | Between features and response |
+| Normality  | Between systemic and random |
+| Independence | Between observations |
+| Identically distributed residuals |  |
+
+
+# The Transformer is Not a Model
+
+The Transformer Model may be better thought of as an algorithm than a model. There are assumptions baked in, but the assumptions are never really made explicit, and never checked. 
+
+A relationship is specified by 
+
 
 The world does not need any more tutorials on the transformer model. To me, the most challenging part of the "Attention is All You Need" paper is keeping track of the matrix dimensions, operations comprising the algorithm, and assumptions. The overall structure of the model is explained by [Sebastian Rashcka](https://sebastianraschka.com/blog/2023/self-attention-from-scratch.html). Another useful resource is the [Annotated Transformer](https://nlp.seas.harvard.edu/annotated-transformer/). In this post, I want to do something simple but useful. I want to keep track of the matrix dimensions, operations, and function dependencies. Lots of tutorials make effective use of code. But if you don't code in Jax, PyTorch, or TensorFlow regularly, the code-focused tutorials may not be all that helpful.
 
@@ -33,7 +55,7 @@ The model-focused approach is focused (perhaps too much) on assumptions. What is
 
 *TLDR: a Transformer is s a model having three structurally similar components that make use of self-attention spread across multiple heads.*
 
-The Transformer model has three modules: encoder, decoder, and encoder-decoder. As I understand it, a "Transformer" *must have* all three of these components. They are structurally similar in that each of the three components (i) uses scaled dot-product attention (ii) spread across multiple heads and (iii) shares post-processing operations (e.g. residual connection, layer normalization, and feed-forward neural network). Then these three modules are carefully brought together, you get a Transformer. 
+The Transformer model has three modules: encoder, decoder, and encoder-decoder. As I understand it, a "Transformer" *must have* all three of these components. They are structurally similar in that each of the three components (i) uses scaled dot-product attention (ii) spread across multiple heads and (iii) shares (internal) post-processing operations (e.g. residual connection, layer normalization, and feed-forward neural network). Then these three modules are carefully brought together, you get a Transformer. 
 
 For example, in the German to English translation task, an English sentence of length $L$ is provided. The sentence has already been tokenized so each token is represented in a high-dimensional feature space. The authors assume that each embedded tokens is in $\mathbb{R}^{d_{\rm{model}}}$. 
 

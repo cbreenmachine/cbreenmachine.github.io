@@ -1,0 +1,102 @@
+---
+title: "SkillLuck"
+author: "Coleman Breen"
+date: "2024-07-26"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+
+win_df <- list(
+  "celtics" = 0.78, "knicks" = 0.610,
+  "bucks" = 0.598, "cavaliers" = 0.585,
+  "magic" = 0.573, "pacers" = 0.573,
+  "seventy_sixers" = 0.573, "heat" = 0.561,
+  "bulls" = 0.476, "hawks" = 0.439,
+  "nets" = 0.390, "raptors" = 0.305,
+  "hornets" = 0.256, "wizards" = 0.183,
+  "pistons" = 0.171, "thunder" = 0.695,
+  "nuggets" = 0.695, "timberwolves" = 0.683,
+  "clippers" = 0.622, "mavericks" = 0.610,
+  "suns" = 0.598, "pelicans" = 0.598,
+  "lakers" = 0.573, "kings" = 0.561,
+  "warriors" = 0.561, "rockets" = 0.500,
+  "jazz" = 0.378, "grizzlies" = 0.329,
+  "spurs" = 0.268, "trail_blazers" = 0.256
+) %>% as.data.frame() %>% 
+  pivot_longer(cols = everything(), names_to = "team", 
+               values_to = "win_percentage") %>%
+  mutate(rank = rank(-win_percentage)) %>%
+  arrange(team)
+  
+win_df
+```
+
+
+```{r}
+
+simulate_skillful_games <- function(df=win_df){
+  
+  df %>%
+    # Shuffle the rows
+    sample_n(nrow(.)) %>% 
+    # Assign "game index" to pairs. Teams one and two get ix=1, 
+    # teams two and three get ix=2, and so on
+    mutate(ix = rep(seq(1, nrow(.)/2), each=2)) %>%
+    # Make comparison within this "group"
+    group_by(ix) %>%
+    # If the group rank is smaller, the team is better and wins
+    mutate(win = ifelse(rank == min(rank), 1, 0)) %>% 
+    ungroup() %>%
+    arrange(team) %>% 
+    # Only return the ones and zeros corresponding to W
+    pull(win) %>%
+    return()
+}
+
+Skill <- t(as.matrix(replicate(82, {simulate_skillful_games(win_df)})))
+win_df$all_skill <- colSums(Skill) / 82
+
+
+Luck <- t(as.matrix(replicate(82, {sample(rep(c(1,0), 15))})))
+win_df$all_luck <- colSums(Luck) / 82
+
+```
+
+
+```{r}
+win_df %>%
+  rename(reality = win_percentage) %>% 
+  pivot_longer(cols=c(reality, all_skill, all_luck)) %>% 
+  ggplot(aes(x = value, fill = name)) +
+  geom_density(alpha = 0.5, position="identity")
+```
+
+Now we ask--are the points in blue more likely to have come from the luck bin or the skill bin? By eye, we can see that the peak of the blue density plot around 0.57 is morel likely to have come from the skill bin.
+
+```{r}
+ecdf <- win_df %>%
+  rename(reality = win_percentage) %>% 
+  pivot_longer(cols=c(reality, all_skill, all_luck)) %>% 
+  group_by(name) %>%
+  mutate(ECDF = ecdf(value)(value))
+
+
+ecdf %>%
+  ggplot(aes(x = value, y = ECDF, color = name)) +
+  geom_line()
+```
+If we can minimize the average distance between our mixture distribution and reality, we may be in business.
+
+```{r}
+
+z <- pivot_wider(ecdf, names_from="name", values_from = "ECDF", id_cols = "team")
+p <- 0.2
+
+
+B <- 10000
+
+# Need to discretize and use categorical
+```
+
