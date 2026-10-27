@@ -9,7 +9,8 @@
   }
 
   function showTab(id) {
-    document.querySelectorAll('.tab').forEach(s => { s.hidden = s.id !== id; });
+    // Sections are id="tab-<name>" so the browser never fragment-scrolls to them on load.
+    document.querySelectorAll('.tab').forEach(s => { s.hidden = s.id !== `tab-${id}`; });
     document.querySelectorAll('.nav__link').forEach(a => {
       const on = a.dataset.tab === id;
       a.classList.toggle('is-active', on);

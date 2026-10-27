@@ -10,9 +10,11 @@
   --ink: #0f1a24;
   --ink2: #27496b;
   --rule: #cfe0ec;
-  --blue: #2d7fb8;
+  --blue: #2a76ab;          /* Carolina blue, darkened a hair to reach AA on paper */
   --clay: #a9452e;
-  --gold: #c8963e;
+  --gold: #c8963e;          /* card edges only */
+  --gold-text: #8c651d;     /* Policy tag text: tobacco gold at AA contrast */
+  --dogwood-color: #2d7fb8; /* the drawing keeps the true Carolina blue */
   --dogwood-alpha: 0.55;
 
   --font-mono: 'IBM Plex Mono', ui-monospace, Menlo, monospace;
@@ -31,6 +33,8 @@
     --blue: #7bafd4;
     --clay: #d0694f;
     --gold: #d9ae5a;
+    --gold-text: #d9ae5a;
+    --dogwood-color: #7bafd4;
     --dogwood-alpha: 0.4;
     color-scheme: dark;
   }
@@ -44,6 +48,8 @@
   --blue: #7bafd4;
   --clay: #d0694f;
   --gold: #d9ae5a;
+  --gold-text: #d9ae5a;
+  --dogwood-color: #7bafd4;
   --dogwood-alpha: 0.4;
   color-scheme: dark;
 }
@@ -79,7 +85,7 @@ a:hover { text-decoration: underline; text-decoration-color: var(--rule); text-u
   z-index: 1;
   max-width: var(--max-width);
   margin: 0 auto;
-  padding: 2rem 16px 3rem;
+  padding: 1.25rem 16px 3rem;
 }
 
 /* ---------- Hero background (dogwood canvas) ---------- */
@@ -98,7 +104,7 @@ a:hover { text-decoration: underline; text-decoration-color: var(--rule); text-u
 
 /* ---------- Hero ---------- */
 
-.hero { padding: 1.5rem 0 1.25rem; }
+.hero { padding: 1.75rem 0 2.5rem; }
 
 .hero__name {
   display: flex;
@@ -146,8 +152,7 @@ h1 {
   align-items: center;
   gap: 0.5rem 1.25rem;
   padding: 0.75rem 0;
-  margin: 0.75rem 0 2.5rem;
-  border-top: 1px solid var(--rule);
+  margin: 0 0 0.5rem;
   border-bottom: 1px solid var(--rule);
   font-family: var(--font-mono);
   font-size: 0.95rem;
@@ -236,7 +241,7 @@ h1 {
 .card--technical { border-left-color: var(--clay); }
 .card--technical .card__tag { color: var(--clay); }
 .card--policy { border-left-color: var(--gold); }
-.card--policy .card__tag { color: var(--gold); }
+.card--policy .card__tag { color: var(--gold-text); }
 
 .card__image {
   display: block;

@@ -132,7 +132,7 @@
   function cssColors() {
     const cs = window.getComputedStyle(document.documentElement);
     const v = k => cs.getPropertyValue(k).trim();
-    return { color: v('--blue') || '#2d7fb8', paper: v('--paper') || '#fbfaf7', alpha: parseFloat(v('--dogwood-alpha')) || 0.55 };
+    return { color: v('--dogwood-color') || v('--blue') || '#2d7fb8', paper: v('--paper') || '#fbfaf7', alpha: parseFloat(v('--dogwood-alpha')) || 0.55 };
   }
 
   function mount(canvas) {

@@ -5,6 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Coleman Breen</title>
   <meta name="description" content="Coleman Breen, Head of AI Policy at SecureBio. Statistician by training. Working on AI and biosecurity policy.">
+  <meta property="og:title" content="Coleman Breen">
+  <meta property="og:description" content="Head of AI Policy at SecureBio. Statistician by training. Working on AI and biosecurity policy.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://cbreenmachine.github.io/">
+  <meta property="og:image" content="https://cbreenmachine.github.io/assets/headshot.jpg">
+  <meta property="og:image:width" content="400">
+  <meta property="og:image:height" content="400">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Coleman Breen">
+  <meta name="twitter:description" content="Head of AI Policy at SecureBio. Statistician by training. Working on AI and biosecurity policy.">
+  <meta name="twitter:image" content="https://cbreenmachine.github.io/assets/headshot.jpg">
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
   <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -26,15 +37,6 @@
   <canvas class="hero-bg" aria-hidden="true"></canvas>
 
   <div class="container">
-    <header class="hero">
-      <div class="hero__name">
-        <img class="hero__photo" src="assets/headshot.jpg" alt="Coleman Breen" width="76" height="76">
-        <h1>Coleman Breen</h1>
-      </div>
-      <p class="hero__role">Head of AI Policy, SecureBio</p>
-      <p class="hero__line">Statistician by training. Working on AI and biosecurity policy.</p>
-    </header>
-
     <nav class="nav" aria-label="Sections">
       <a class="nav__link" href="#about" data-tab="about">About</a>
       <a class="nav__link" href="#technical" data-tab="technical">Technical Work</a>
@@ -61,24 +63,34 @@
       </div>
     </nav>
 
+    <header class="hero">
+      <div class="hero__name">
+        <img class="hero__photo" src="assets/headshot.jpg" alt="" width="76" height="76">
+        <h1>Coleman Breen</h1>
+      </div>
+      <p class="hero__role">Head of AI Policy, SecureBio</p>
+      <p class="hero__line">Statistician by training. Working on AI and biosecurity policy.</p>
+    </header>
+
     <main>
-      <section class="tab" id="about" hidden>
+      <noscript><p class="prose">This page needs JavaScript to show its content. The CV is still here: <a href="assets/cv.pdf">download the PDF</a>.</p></noscript>
+
+      <section class="tab" id="tab-about" hidden>
         <h2 class="tab__title">About</h2>
         <div class="prose" id="about-body"></div>
-        <noscript><p class="prose">This page needs JavaScript to show its content. The CV is still here: <a href="assets/cv.pdf">download the PDF</a>.</p></noscript>
       </section>
 
-      <section class="tab" id="technical" hidden>
+      <section class="tab" id="tab-technical" hidden>
         <h2 class="tab__title">Technical Work</h2>
         <div id="technical-cards"></div>
       </section>
 
-      <section class="tab" id="policy" hidden>
+      <section class="tab" id="tab-policy" hidden>
         <h2 class="tab__title">Policy Work</h2>
         <div id="policy-cards"></div>
       </section>
 
-      <section class="tab" id="cv" hidden>
+      <section class="tab" id="tab-cv" hidden>
         <h2 class="tab__title">CV</h2>
         <p class="cv__meta"><a class="button" href="assets/cv.pdf" download>Download PDF</a> <span>Built 2026-10-27</span></p>
         <object class="cv__embed" data="assets/cv.pdf" type="application/pdf">
@@ -86,7 +98,7 @@
         </object>
       </section>
 
-      <section class="tab" id="links" hidden>
+      <section class="tab" id="tab-links" hidden>
         <h2 class="tab__title">Links</h2>
         <div id="links-list"></div>
       </section>
