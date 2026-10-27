@@ -89,7 +89,7 @@
 
   // Draw one frame. The caller has already reset the transform and cleared.
   function drawScene(ctx, W, H, opts) {
-    const { sway = 0, color = '#2d7fb8', paper = '#fbfaf7', alpha = 0.55, scale = 1, scene = SCENE, shiftX = 0 } = opts || {};
+    const { sway = 0, color = '#2d7fb8', paper = '#fbfaf7', alpha = 0.55, scale = 1, scene = SCENE, shiftX = 0, fade = true } = opts || {};
     const [ox, oy] = scene.origin(W, H);
     const fill = paper;
     ctx.save();
@@ -116,6 +116,7 @@
       ctx.restore();
     }
     ctx.restore();
+    if (!fade) return;
 
     // Fade the bottom so the drawing dissolves before the content.
     const g = ctx.createLinearGradient(0, H * 0.7, 0, H);

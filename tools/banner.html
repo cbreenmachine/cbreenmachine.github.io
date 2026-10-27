@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<!-- LinkedIn banner source, 1584×396. Rendered to assets/linkedin-banner.png by headless Chrome:
+     python3 -m http.server 8765 &
+     "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" --headless=new --disable-gpu --hide-scrollbars \
+       --force-device-scale-factor=2 --window-size=1584,396 --virtual-time-budget=6000 \
+       --screenshot=tools/out/banner-2x.png "http://127.0.0.1:8765/tools/banner.html"
+     sips -z 396 1584 tools/out/banner-2x.png --out assets/linkedin-banner.png
+     The lower-left 400px stays clear for LinkedIn's profile-photo overlay. -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+  <style>
+    html, body { margin: 0; padding: 0; }
+    body { width: 1584px; height: 396px; overflow: hidden; background: #fbfaf7; position: relative; }
+    canvas { position: absolute; inset: 0; width: 1584px; height: 396px; }
+    .motto {
+      position: absolute; right: 44px; bottom: 30px; margin: 0;
+      font-family: 'IBM Plex Mono', ui-monospace, Menlo, monospace; font-size: 18px; color: #27496b;
+    }
+    .motto i { color: #0f1a24; }
+  </style>
+</head>
+<body>
+  <canvas id="c" width="1584" height="396"></canvas>
+  <p class="motto"><i>Esse quam videri.</i> To be, rather than to seem.</p>
+  <script src="../js/dogwood.js"></script>
+  <script>
+    (function () {
+      const W = 1584, H = 396, dpr = window.devicePixelRatio || 1;
+      const canvas = document.getElementById('c');
+      canvas.width = W * dpr; canvas.height = H * dpr;
+      const ctx = canvas.getContext('2d');
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const scene = Object.assign({}, Dogwood.SCENE, { origin: () => [1620, 362] });
+      Dogwood.drawScene(ctx, W, H, { sway: 0, color: '#2d7fb8', paper: '#fbfaf7', alpha: 0.6, scale: 1.45, scene, fade: false });
+    })();
+  </script>
+</body>
+</html>

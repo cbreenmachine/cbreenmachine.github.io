@@ -100,3 +100,9 @@ test('mount pushes the branch partly off the right edge on narrow viewports', ()
   // origin x = W + 20 + 140 on viewports under 700px
   assert.equal(translates[0][0], 550);
 });
+
+test('drawScene with fade:false skips the bottom gradient', () => {
+  const ctx = fakeCtx();
+  D.drawScene(ctx, 1584, 396, { sway: 0, fade: false });
+  assert.ok(!ctx.calls.includes('createLinearGradient'));
+});
