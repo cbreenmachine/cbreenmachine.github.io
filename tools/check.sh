@@ -31,10 +31,12 @@ COMMON=(--headless=new --disable-gpu --hide-scrollbars --no-first-run --no-defau
 
 for tab in about technical policy cv links; do
   "$CHROME" "${COMMON[@]}" --window-size=1280,900 --dump-dom "$BASE/#$tab" > "$OUT/dom-$tab.html" 2>/dev/null
+  # About is the default tab; load it without a hash so the screenshot shows the hero instead of scrolling past it.
+  frag="#$tab"; [ "$tab" = about ] && frag=""
   for theme in light dark; do
-    "$CHROME" "${COMMON[@]}" --window-size=1280,900 --screenshot="$OUT/$tab-1280-$theme.png" "$BASE/?theme=$theme#$tab" >/dev/null 2>&1
+    "$CHROME" "${COMMON[@]}" --window-size=1280,900 --screenshot="$OUT/$tab-1280-$theme.png" "$BASE/?theme=$theme$frag" >/dev/null 2>&1
     # Chrome clamps the window to 500px wide, so phone shots go through a 390px iframe.
-    src=$(python3 -c "import urllib.parse,sys; print(urllib.parse.quote(sys.argv[1], safe=''))" "/?theme=$theme#$tab")
+    src=$(python3 -c "import urllib.parse,sys; print(urllib.parse.quote(sys.argv[1], safe=''))" "/?theme=$theme$frag")
     "$CHROME" "${COMMON[@]}" --window-size=390,844 --screenshot="$OUT/$tab-390-$theme.png" "$BASE/tools/phone.html?src=$src" >/dev/null 2>&1
   done
 done
