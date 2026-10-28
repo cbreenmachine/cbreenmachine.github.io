@@ -29,3 +29,7 @@ test('social preview metadata is present', () => {
 test('nav sits above the hero, as in the approved mockup', () => {
   assert.ok(html.indexOf('<nav class="nav"') < html.indexOf('<header class="hero"'));
 });
+
+test('nav links to the Google Scholar profile', () => {
+  assert.match(html, /<a class="nav__icon" href="https:\/\/scholar\.google\.com\/citations\?user=1RgLUjIAAAAJ[^"]*"[^>]*aria-label="Google Scholar"/);
+});
